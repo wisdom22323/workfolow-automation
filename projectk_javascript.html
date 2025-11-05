@@ -1,0 +1,124 @@
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("searchInput");
+  const resultTableBody = document.getElementById("resultTableBody");
+  const loadingIndicator = document.getElementById("loadingIndicator");
+  const emptyMessage = document.getElementById("emptyMessage");
+
+  let allApplications = [];
+
+  // 初期読み込み
+  loadApplications();
+
+  function loadApplications() {
+    showLoading(true);
+    google.script.run
+      .withSuccessHandler(applications => {
+        allApplications = applications || [];
+        renderTable(allApplications);
+        showLoading(false);
+      })
+      .withFailureHandler(err => {
+        console.error("データ取得エラー:", err);
+        showLoading(false);
+        emptyMessage.textContent = "データの読み込みに失敗しました。";
+        emptyMessage.style.display = "block";
+      })
+      .getApplications();
+  }
+
+  // 検索イベント
+  searchInput.addEventListener("input", e => {
+    const keyword = e.target.value.trim().toLowerCase();
+    const filtered = allApplications.filter(app =>
+      app.name.toLowerCase().includes(keyword) ||
+      app.id.toLowerCase().includes(keyword)
+    );
+    renderTable(filtered);
+  });
+
+  // テーブル描画
+  function renderTable(data) {
+    resultTableBody.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      emptyMessage.style.display = "block";
+      return;
+    }
+    emptyMessage.style.display = "none";
+
+    data.forEach((app, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${app.id}</td>
+        <td>${app.name}</td>
+        <td>${app.type}</td>
+        <td>${app.currentStatus}</td>
+        <td>${app.expiryDate}</td>
+        <td>${app.status}</td>
+      `;
+      // 選択時にハイライト
+      row.addEventListener("click", () => selectRow(index));
+      resultTableBody.appendChild(row);
+    });
+  }
+
+  // ローディング表示
+  function showLoading(show) {
+    loadingIndicator.style.display = show ? "block" : "none";
+    document.getElementById("tableContainer").style.opacity = show ? 0.5 : 1;
+  }
+
+  // 選択された行（申請）情報
+  let selectedApplication = null;
+  function selectRow(index) {
+    const rows = document.querySelectorAll("#resultTableBody tr");
+    rows.forEach(r => r.classList.remove("selected"));
+    rows[index].classList.add("selected");
+    selectedApplication = allApplications[index];
+  }
+
+  // ==============================
+  // ✉️ メール送信処理（デモモード対応）
+  // ==============================
+  window.sendEmailToUser = function() {
+    const email = document.getElementById("userEmail").value.trim();
+
+    if (!email) {
+      alert("メールアドレスを入力してください。");
+      return;
+    }
+    if (!selectedApplication) {
+      alert("まず一覧から申請を1件選択してください。");
+      return;
+    }
+
+    const subject = `【デモ】申請結果：${selectedApplication.name}`;
+    const body = `
+${selectedApplication.name} 様
+
+以下は在留管理システム（デモ）の申請内容です：
+
+申請ID: ${selectedApplication.id}
+申請種別: ${selectedApplication.type}
+現在の状態: ${selectedApplication.status}
+有効期限: ${selectedApplication.expiryDate}
+
+※ このメールはデモモードのため実際には送信されません。
+`;
+
+    // フロント上で通知
+    alert("デモモードのため、実際のメール送信は行われません。\n送信テストを完了しました。");
+
+    // GAS側へ送信リクエスト（DEMO_MODEにより実行されない）
+    google.script.run
+      .withSuccessHandler(() => {
+        console.log("sendResultEmail() 呼び出し完了（デモモード）");
+      })
+      .withFailureHandler(err => {
+        console.error("メール送信エラー:", err);
+      })
+      .sendResultEmail(email, subject, body);
+  };
+});
+</script>
