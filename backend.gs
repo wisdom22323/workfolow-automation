@@ -1,5 +1,8 @@
 // =====================================
-// backend.gs（デモ公開用・安全版）
+// backend.gs（最終安定版）
+// -------------------------------------
+// ✅ DEMO_MODE=true ならSpreadsheetアクセスせず安全動作
+// ✅ DEMO_MODE=false なら実運用モードでデータ操作可能
 // =====================================
 
 function doGet(e) {
@@ -21,12 +24,16 @@ function isDemoMode() {
 }
 
 // -------------------------------------
-// 申請登録
+// 申請登録（新規申請）
 // -------------------------------------
 function submitApplication(formData) {
   if (isDemoMode()) {
-    Logger.log('デモモード：データ保存スキップ');
-    return { success: true, applicationId: 'ZC-DEMO0001', message: 'デモモード：実際の登録は行われません' };
+    Logger.log('デモモード：submitApplication スキップ');
+    return {
+      success: true,
+      applicationId: 'ZC-DEMO0001',
+      message: 'デモモード：登録テスト成功（実データは保存されません）'
+    };
   }
 
   try {
@@ -45,20 +52,21 @@ function submitApplication(formData) {
       now,
       CONFIG.STATUS.NEW
     ];
+
     sheet.appendRow(newRow);
-    return { success: true, applicationId: applicationId, message: '申請を登録しました' };
+    return { success: true, applicationId, message: '申請を登録しました。' };
   } catch (error) {
     return { success: false, error: error.message };
   }
 }
 
 // -------------------------------------
-// 申請一覧取得
+// 申請一覧取得（Spreadsheetなしでもデモ可）
 // -------------------------------------
 function getApplications() {
   try {
+    // 🔹 デモモード：固定サンプルデータを返す
     if (isDemoMode()) {
-      // デモ表示用のサンプルデータを返す
       return CONFIG.SAMPLE_NAMES.map((name, i) => ({
         id: `ZC-25${String(i + 1).padStart(4, '0')}`,
         name,
@@ -70,6 +78,7 @@ function getApplications() {
       }));
     }
 
+    // 🔹 通常モード：Spreadsheetから取得
     const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
     if (!sheet) throw new Error('シートが見つかりません');
@@ -88,31 +97,56 @@ function getApplications() {
       status: row[6]
     }));
   } catch (e) {
-    throw new Error('データ取得エラー: ' + e.message);
+    Logger.log('getApplications() error: ' + e.message);
+    return []; // デモ時・失敗時でもUIが止まらない
   }
 }
 
 // -------------------------------------
-// 状態更新（デモではログのみ）
+// 状態更新
 // -------------------------------------
 function updateApplicationStatus(applicationId, newStatusKey) {
   if (isDemoMode()) {
     Logger.log(`デモモード: 状態更新スキップ (${applicationId}, ${newStatusKey})`);
-    return { success: true };
+    return { success: true, message: 'デモモード: 状態更新テスト成功' };
   }
-  return { success: false, error: 'この環境では更新できません（デモモード）' };
+
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+    const data = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === applicationId) {
+        sheet.getRange(i + 1, 7).setValue(CONFIG.STATUS_MAP[newStatusKey]);
+        return { success: true };
+      }
+    }
+    return { success: false, error: '対象データが見つかりません。' };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
 }
 
 // -------------------------------------
-// メール送信（デモではスキップ）
+// メール送信（デモモードではログのみ）
 // -------------------------------------
 function sendResultEmail(to, subject, body) {
   if (isDemoMode()) {
     Logger.log(`デモモード: メール送信スキップ (${to})`);
-    return { success: true };
+    return {
+      success: true,
+      message: 'デモモード: メール送信スキップ'
+    };
   }
+
   try {
-    MailApp.sendEmail({ to, subject, body, name: '在留管理システム（デモ）' });
+    MailApp.sendEmail({
+      to,
+      subject,
+      body,
+      name: '在留管理システム'
+    });
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -120,7 +154,7 @@ function sendResultEmail(to, subject, body) {
 }
 
 // -------------------------------------
-// ヘルパー関数
+// 日付整形ヘルパー
 // -------------------------------------
 function formatDateString(date) {
   if (!date) return '';
@@ -130,6 +164,9 @@ function formatDateString(date) {
   return date.toString().split('T')[0];
 }
 
+// -------------------------------------
+// 申請ID自動生成
+// -------------------------------------
 function generateApplicationId(sheet) {
   const lastRow = sheet.getLastRow();
   const seq = lastRow > 1 ? lastRow - 1 : 1;
