@@ -1,0 +1,345 @@
+    /* =====================================
+      projectk_stylesheet.html - 改善版
+      ===================================== */
+
+    /* リセットと基本スタイル */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Meiryo UI', 'Yu Gothic', 'Hiragino Kaku Gothic Pro', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ヘッダー */
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .date {
+      margin-top: 12px;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    /* セクション */
+    .section {
+      background-color: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      margin-bottom: 24px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .section:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .section h2 {
+      margin: 0 0 20px 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    /* フォーム */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #555;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e1e8ed;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    input[type="text"]:disabled,
+    input[type="date"]:disabled,
+    select:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    /* ボタン */
+    .primary-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .primary-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .primary-button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .primary-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .action-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background-color 0.2s ease;
+    }
+
+    .action-button:hover {
+      background-color: #45a049;
+    }
+
+    .action-button:active {
+      background-color: #3d8b40;
+    }
+
+    /* テーブル */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 16px;
+      border-radius: 8px;
+      border: 1px solid #e1e8ed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid #e1e8ed;
+      white-space: nowrap;
+    }
+
+    td {
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr {
+      transition: background-color 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    /* ステータスバッジ */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-new {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .status-progress {
+      background-color: #fff3e0;
+      color: #f57c00;
+    }
+
+    .status-document {
+      background-color: #fce4ec;
+      color: #c2185b;
+    }
+
+    .status-waiting {
+      background-color: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .status-submitted {
+      background-color: #e0f2f1;
+      color: #00796b;
+    }
+
+    .status-completed {
+      background-color: #e8f5e9;
+      color: #388e3c;
+    }
+
+    .status-default {
+      background-color: #f5f5f5;
+      color: #757575;
+    }
+
+    /* レスポンシブ対応 */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .section {
+        padding: 16px;
+      }
+
+      .section h2 {
+        font-size: 18px;
+      }
+
+      table {
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        padding: 10px 8px;
+      }
+
+      .action-button {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+    }
+
+    /* スクロールバーのスタイル（Webkit系ブラウザ） */
+    .table-container::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+
+    /* アニメーション */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    /* アクセシビリティ */
+    :focus-visible {
+      outline: 2px solid #667eea;
+      outline-offset: 2px;
+    }
+
+    /* 選択行のハイライト */
+    #applicationTableBody tr.selected-row {
+      background-color: #e3f2fd !important;
+      box-shadow: inset 0 0 0 2px #1976d2;
+    }
+
+    #applicationTableBody tr.selected-row td {
+      font-weight: 600;
+    }
+
+    /* メールエリアのアニメーション */
+    #emailNotificationArea {
+      animation: fadeIn 0.4s ease-out;
+    }
