@@ -6,10 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const emptyMessage = document.getElementById("emptyMessage");
 
   let allApplications = [];
+  let selectedApplication = null;
 
-  // 初期読み込み
+  // 初期ロード
   loadApplications();
 
+  // ==============================
+  // 🔄 データ読み込み処理
+  // ==============================
   function loadApplications() {
     showLoading(true);
     google.script.run
@@ -27,7 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
       .getApplications();
   }
 
-  // 検索イベント
+  // ==============================
+  // 🔍 検索処理
+  // ==============================
   searchInput.addEventListener("input", e => {
     const keyword = e.target.value.trim().toLowerCase();
     const filtered = allApplications.filter(app =>
@@ -37,7 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTable(filtered);
   });
 
-  // テーブル描画
+  // ==============================
+  // 🧱 テーブル描画
+  // ==============================
   function renderTable(data) {
     resultTableBody.innerHTML = "";
 
@@ -57,20 +65,14 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${app.expiryDate}</td>
         <td>${app.status}</td>
       `;
-      // 選択時にハイライト
       row.addEventListener("click", () => selectRow(index));
       resultTableBody.appendChild(row);
     });
   }
 
-  // ローディング表示
-  function showLoading(show) {
-    loadingIndicator.style.display = show ? "block" : "none";
-    document.getElementById("tableContainer").style.opacity = show ? 0.5 : 1;
-  }
-
-  // 選択された行（申請）情報
-  let selectedApplication = null;
+  // ==============================
+  // ✴️ 行選択
+  // ==============================
   function selectRow(index) {
     const rows = document.querySelectorAll("#resultTableBody tr");
     rows.forEach(r => r.classList.remove("selected"));
@@ -79,7 +81,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==============================
-  // ✉️ メール送信処理（デモモード対応）
+  // ⏳ ローディング表示
+  // ==============================
+  function showLoading(show) {
+    if (!loadingIndicator) return;
+    loadingIndicator.style.display = show ? "block" : "none";
+    document.getElementById("tableContainer").style.opacity = show ? 0.5 : 1;
+  }
+
+  // ==============================
+  // ✉️ メール送信（デモ対応）
   // ==============================
   window.sendEmailToUser = function() {
     const email = document.getElementById("userEmail").value.trim();
@@ -107,10 +118,8 @@ ${selectedApplication.name} 様
 ※ このメールはデモモードのため実際には送信されません。
 `;
 
-    // フロント上で通知
     alert("デモモードのため、実際のメール送信は行われません。\n送信テストを完了しました。");
 
-    // GAS側へ送信リクエスト（DEMO_MODEにより実行されない）
     google.script.run
       .withSuccessHandler(() => {
         console.log("sendResultEmail() 呼び出し完了（デモモード）");
