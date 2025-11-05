@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在留管理システム</title>
+  <style>
+    <?!= include('projectk_stylesheet'); ?>
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ヘッダー -->
+    <div class="header">
+      <h1>在留管理システム</h1>
+      <div class="subtitle">Residence Card Management System</div>
+      <div class="date" id="currentDate">読み込み中...</div>
+    </div>
+
+    <!-- デモ用ボタン -->
+    <div class="section" style="padding:12px 24px;">
+      <button onclick="runInsertSampleData()" class="action-button">デモデータ投入</button>
+      <button onclick="runInitializeSheet()" class="action-button" style="margin-left:8px;">シート初期化</button>
+    </div>
+
+    <!-- 新規申請フォーム -->
+    <div class="section">
+      <h2>新規申請</h2>
+      <form id="applicationForm">
+        <div class="form-group">
+          <label for="name">氏名 <span style="color:red;">*</span></label>
+          <input type="text" id="name" name="name" required placeholder="例: 山田太郎">
+        </div>
+        <div class="form-group">
+          <label for="applicationType">申請種類 <span style="color:red;">*</span></label>
+          <select id="applicationType" name="applicationType" required>
+            <option value="">選択してください</option>
+            <option value="在留カード更新">在留カード更新</option>
+            <option value="在留期間更新">在留期間更新</option>
+            <option value="資格変更">資格変更</option>
+            <option value="在留資格認定証明書">在留資格認定証明書</option>
+            <option value="永住許可">永住許可</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="currentStatus">現在の在留資格 <span style="color:red;">*</span></label>
+          <input type="text" id="currentStatus" name="currentStatus" required placeholder="例: 技術・人文知識・国際業務">
+        </div>
+        <div class="form-group">
+          <label for="expiryDate">在留期限 <span style="color:red;">*</span></label>
+          <input type="date" id="expiryDate" name="expiryDate" required>
+        </div>
+        <button type="submit" class="primary-button">申請を登録</button>
+      </form>
+    </div>
+
+    <!-- 🔍 検索 & メール通知統合セクション -->
+    <div class="section" style="padding:20px 24px;">
+      <h2>申請検索と通知</h2>
+
+      <!-- 検索ボックス -->
+      <input type="text" id="searchInput"
+            placeholder="氏名・受付番号で検索..."
+            style="width:100%; max-width:400px; margin-bottom:16px;">
+
+      <!-- メール通知エリア（常時表示に変更） -->
+      <div id="emailNotificationArea"
+          style="margin-top:16px; padding:16px; background:#f8f9fa; border-radius:8px;">
+        <h3 style="margin-top:0; color:#2c3e50;">結果をメールで受け取る</h3>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:end;">
+          <div style="flex:1; min-width:250px;">
+            <label for="userEmail">選択した申請の詳細を、あなたのメールに送信します。</label>
+            <input type="email" id="userEmail" placeholder="example@gmail.com"
+                  style="width:100%; padding:10px; margin-top:4px; border:2px solid #ddd; border-radius:6px;">
+          </div>
+          <button onclick="sendEmailToUser()" class="primary-button" style="padding:10px 20px;">
+            メールで送る
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 申請一覧 -->
+    <div class="section">
+      <h2>申請一覧</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>受付番号</th>
+              <th>氏名</th>
+              <th>申請種類</th>
+              <th>現在の在留資格</th>
+              <th>在留期限</th>
+              <th>提出日</th>
+              <th>状態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="applicationTableBody">
+            <tr><td colspan="8" style="text-align:center;padding:20px;">読み込み中...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>  
+
+    <!-- モーダル -->
+    <dialog id="statusModal">
+      <form method="dialog">
+        <h3>状態を更新</h3>
+        <p><strong>受付番号：</strong><span id="modalId"></span></p>
+        <select id="modalStatus" style="width:100%; padding:8px; margin:12px 0;">
+          <option value="IN_PROGRESS">処理中</option>
+          <option value="DOCUMENT_CHECK">書類確認中</option>
+          <option value="WAITING_SUBMISSION">提出待ち</option>
+          <option value="SUBMITTED">提出済み</option>
+          <option value="COMPLETED">完了</option>
+        </select>
+        <div class="modal-actions" style="text-align:right; margin-top:16px;">
+          <button type="submit" class="primary-button" style="padding:8px 16px; font-size:14px;">更新</button>
+          <button type="button" onclick="closeModal()" style="margin-left:8px; padding:8px 16px;">キャンセル</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+
+  <?!= include('projectk_javascript'); ?>
+
+</body>
+</html>
