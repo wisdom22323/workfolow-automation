@@ -30,7 +30,7 @@ Google Apps Script + スプレッドシートで構築した「在留管理シ�
 
 ## ⚙️ 動作デモ
 
-👉 **[在留管理システム デモページ（Google Apps Script）]([https://script.google.com/macros/s/AKfycb-your-demo-url/exec](https://script.google.com/macros/s/AKfycbzVsQipFXQJcs78PfVRuiAGbsMs0oUZGU7pxmhtNnwM4Yl5LppeUXWHJ0heSw4GXG-b/exec))**
+👉 **[在留管理システム デモページ（Google Apps Script）](https://script.google.com/macros/s/AKfycbzVsQipFXQJcs78PfVRuiAGbsMs0oUZGU7pxmhtNnwM4Yl5LppeUXWHJ0heSw4GXG-b/exec)**
 
 > ※ このリンクはデモ専用アカウント・スプレッドシートで動作しています。
 > ※ 入力内容は保存されず、自動的に破棄されます。
