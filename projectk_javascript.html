@@ -1,15 +1,47 @@
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("searchInput");
-  const resultTableBody = document.getElementById("resultTableBody");
-  const loadingIndicator = document.getElementById("loadingIndicator");
-  const emptyMessage = document.getElementById("emptyMessage");
+4. projectk_javascript.html (修正版)
 
+<script>
   let allApplications = [];
   let selectedApplication = null;
+  let currentApplicationId = null; 
+  
+  document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("searchInput");
+  const applicationTableBody = document.getElementById("applicationTableBody");
+  const tableContainer = document.getElementById("tableContainer");
 
+  // 💡【追加】現在の日付を表示する関数
+  function displayCurrentDate() {
+    const dateElement = document.getElementById("currentDate");
+    if (dateElement) {
+        const now = new Date();
+        // 日本語形式で「YYYY年MM月DD日 (曜日)」と表示
+        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+        const formattedDate = now.toLocaleDateString('ja-JP', options);
+        dateElement.textContent = formattedDate;
+    }
+  }
+
+  // 💡【追加】日付表示関数の実行
+  displayCurrentDate();
+  
   // 初期ロード
   loadApplications();
+
+  // ==============================
+  // 💡 ヘルパー関数: ステータス名からCSSクラスを取得
+  // ==============================
+  function getStatusClass(statusName) {
+    switch (statusName) {
+      case "新規申請": return "status-new";
+      case "処理中": return "status-progress";
+      case "書類確認中": return "status-document";
+      case "提出待ち": return "status-waiting";
+      case "提出済み": return "status-submitted";
+      case "完了": return "status-completed";
+      default: return "status-default";
+    }
+  }
 
   // ==============================
   // 🔄 データ読み込み処理
@@ -25,8 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
       .withFailureHandler(err => {
         console.error("データ取得エラー:", err);
         showLoading(false);
-        emptyMessage.textContent = "データの読み込みに失敗しました。";
-        emptyMessage.style.display = "block";
+        // エラーメッセージをテーブル内に表示
+        applicationTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:red;">データの読み込みに失敗しました。</td></tr>`;
       })
       .getApplications();
   }
@@ -44,18 +76,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==============================
-  // 🧱 テーブル描画
+  // 🧱 テーブル描画 (8列に対応)
   // ==============================
   function renderTable(data) {
-    resultTableBody.innerHTML = "";
+    applicationTableBody.innerHTML = "";
 
     if (!data || data.length === 0) {
-      emptyMessage.style.display = "block";
+      const row = document.createElement("tr");
+      row.innerHTML = `<td colspan="8" style="text-align:center;padding:20px;">申請データはありません。</td>`;
+      applicationTableBody.appendChild(row);
       return;
     }
-    emptyMessage.style.display = "none";
 
     data.forEach((app, index) => {
+      const statusClass = getStatusClass(app.status);
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${app.id}</td>
@@ -63,71 +97,141 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${app.type}</td>
         <td>${app.currentStatus}</td>
         <td>${app.expiryDate}</td>
-        <td>${app.status}</td>
-      `;
-      row.addEventListener("click", () => selectRow(index));
-      resultTableBody.appendChild(row);
+        <td>${app.submitDate}</td> <td><span class="status-badge ${statusClass}">${app.status}</span></td> <td><button onclick="openStatusModal('${app.id}')" class="action-button">状態変更</button></td> `;
+      // 注: 検索結果を考慮し、行クリック時にアプリケーションIDで選択し直すロジックがより安全ですが、
+      // 既存の構成に合わせ、シンプルにallApplicationsのindexを使用します。
+      // ただし、selectRow関数内でselectedApplicationを探すロジックはよりロバストにするためIDを使用します。
+      row.addEventListener("click", () => selectRow(app.id));
+      applicationTableBody.appendChild(row);
     });
   }
 
   // ==============================
-  // ✴️ 行選択
+  // ✴️ 行選択 (IDベースに修正)
   // ==============================
-  function selectRow(index) {
-    const rows = document.querySelectorAll("#resultTableBody tr");
-    rows.forEach(r => r.classList.remove("selected"));
-    rows[index].classList.add("selected");
-    selectedApplication = allApplications[index];
+  function selectRow(applicationId) {
+    const rows = document.querySelectorAll("#applicationTableBody tr");
+    rows.forEach(r => r.classList.remove("selected-row"));
+    
+    // 選択された行とアプリケーションを特定
+    let targetRow = null;
+    rows.forEach(r => {
+        if (r.children[0].textContent === applicationId) {
+            targetRow = r;
+        }
+    });
+
+    if (targetRow) {
+      targetRow.classList.add("selected-row");
+      // allApplicationsから正確なオブジェクトを探す
+      selectedApplication = allApplications.find(app => app.id === applicationId);
+    }
   }
 
   // ==============================
   // ⏳ ローディング表示
   // ==============================
   function showLoading(show) {
-    if (!loadingIndicator) return;
-    loadingIndicator.style.display = show ? "block" : "none";
-    document.getElementById("tableContainer").style.opacity = show ? 0.5 : 1;
+    if (!tableContainer) return; // tableContainer IDがない場合
+    tableContainer.style.opacity = show ? 0.5 : 1;
+    // ローディング表示自体はinnerHTMLで制御しているため、ここでは透過度のみ
   }
 
   // ==============================
   // ✉️ メール送信（デモ対応）
   // ==============================
+  // projectk_javascript.html 内の sendEmailToUser 関数
   window.sendEmailToUser = function() {
-    const email = document.getElementById("userEmail").value.trim();
+      const email = document.getElementById("userEmail").value.trim();
+      if (!email) {
+        alert("メールアドレスを入力してください。");
+        return;
+      }
+      if (!selectedApplication) {
+        alert("まず一覧から申請を1件選択してください。");
+        return;
+      }
 
-    if (!email) {
-      alert("メールアドレスを入力してください。");
-      return;
+      const subject = `【デモ】申請結果：${selectedApplication.name}`;
+      const body = `
+  ${selectedApplication.name} 様
+
+  以下は在留管理システム（デモ）の申請内容です：
+
+  申請ID: ${selectedApplication.id}
+  申請種別: ${selectedApplication.type}
+  現在の状態: ${selectedApplication.status}
+  有効期限: ${selectedApplication.expiryDate}
+
+  ※ このメールはデモモードのため実際には送信されません。
+  `;
+
+      // 💡【修正】メール本文とデモ完了メッセージを統合して表示
+      alert(`デモモードのため、実際のメール送信は行われません。\n送信テストを完了しました。\n\n--- 生成されたメール本文（確認用）---\n${body}`);
+
+      google.script.run
+        .withSuccessHandler(() => {
+          console.log("sendResultEmail() 呼び出し完了（デモモード）");
+        })
+        .withFailureHandler(err => {
+          console.error("メール送信エラー:", err);
+        })
+        .sendResultEmail(email, subject, body);
+    };
+  
+  // ==============================
+  // ⚙️ 状態更新モーダル制御
+  // ==============================
+  window.openStatusModal = function(applicationId) {
+    currentApplicationId = applicationId;
+    const modal = document.getElementById("statusModal");
+    const app = allApplications.find(a => a.id === applicationId);
+
+    document.getElementById("modalId").textContent = applicationId;
+    
+    // 現在の状態をモーダルに設定 (UX改善)
+    if (app && app.status) {
+        // ステータス名からキーを探す (config.gsの構造に依存)
+        const statusKey = Object.keys(CONFIG.STATUS).find(key => CONFIG.STATUS[key] === app.status);
+        document.getElementById("modalStatus").value = statusKey || 'IN_PROGRESS';
     }
-    if (!selectedApplication) {
-      alert("まず一覧から申請を1件選択してください。");
-      return;
-    }
 
-    const subject = `【デモ】申請結果：${selectedApplication.name}`;
-    const body = `
-${selectedApplication.name} 様
+    modal.showModal();
+  };
 
-以下は在留管理システム（デモ）の申請内容です：
+  window.closeModal = function() {
+    document.getElementById("statusModal").close();
+  };
 
-申請ID: ${selectedApplication.id}
-申請種別: ${selectedApplication.type}
-現在の状態: ${selectedApplication.status}
-有効期限: ${selectedApplication.expiryDate}
+  window.handleStatusUpdate = function(event) {
+    event.preventDefault(); // フォームのデフォルト送信を防止
+    
+    if (!currentApplicationId) return;
 
-※ このメールはデモモードのため実際には送信されません。
-`;
-
-    alert("デモモードのため、実際のメール送信は行われません。\n送信テストを完了しました。");
+    const newStatusKey = document.getElementById("modalStatus").value;
 
     google.script.run
-      .withSuccessHandler(() => {
-        console.log("sendResultEmail() 呼び出し完了（デモモード）");
+      .withSuccessHandler(res => {
+        if (res.success) {
+          alert(`申請ID ${currentApplicationId} の状態を更新しました。`);
+          loadApplications(); // データ再読み込み
+        } else {
+          alert(`状態更新に失敗しました: ${res.error}`);
+        }
+        closeModal();
       })
       .withFailureHandler(err => {
-        console.error("メール送信エラー:", err);
+        console.error("状態更新エラー:", err);
+        alert("状態更新中にエラーが発生しました。");
+        closeModal();
       })
-      .sendResultEmail(email, subject, body);
+      .updateApplicationStatus(currentApplicationId, newStatusKey);
   };
+
 });
+
+// CONFIGオブジェクトはGAS側からincludeされている前提
+// ただし、このclient側のスクリプトでCONFIGを使用するには、backend.gsのdoGetで
+// CONFIGをグローバルに定義するか、別の関数で取得する必要があります。
+// 今回は、backend.gsでCONFIGが定義されている前提で処理を継続します。
 </script>
