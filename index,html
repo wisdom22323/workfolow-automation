@@ -11,20 +11,12 @@
 </head>
 <body>
   <div class="container">
-    <!-- ヘッダー -->
     <div class="header">
       <h1>在留管理システム</h1>
       <div class="subtitle">Residence Card Management System</div>
       <div class="date" id="currentDate">読み込み中...</div>
     </div>
 
-    <!-- デモ用ボタン -->
-    <div class="section" style="padding:12px 24px;">
-      <button onclick="runInsertSampleData()" class="action-button">デモデータ投入</button>
-      <button onclick="runInitializeSheet()" class="action-button" style="margin-left:8px;">シート初期化</button>
-    </div>
-
-    <!-- 新規申請フォーム -->
     <div class="section">
       <h2>新規申請</h2>
       <form id="applicationForm">
@@ -55,16 +47,13 @@
       </form>
     </div>
 
-    <!-- 🔍 検索 & メール通知統合セクション -->
     <div class="section" style="padding:20px 24px;">
       <h2>申請検索と通知</h2>
 
-      <!-- 検索ボックス -->
       <input type="text" id="searchInput"
             placeholder="氏名・受付番号で検索..."
             style="width:100%; max-width:400px; margin-bottom:16px;">
 
-      <!-- メール通知エリア（常時表示に変更） -->
       <div id="emailNotificationArea"
           style="margin-top:16px; padding:16px; background:#f8f9fa; border-radius:8px;">
         <h3 style="margin-top:0; color:#2c3e50;">結果をメールで受け取る</h3>
@@ -81,10 +70,9 @@
       </div>
     </div>
 
-    <!-- 申請一覧 -->
     <div class="section">
       <h2>申請一覧</h2>
-      <div class="table-container">
+      <div class="table-container" id="tableContainer">
         <table>
           <thead>
             <tr>
@@ -103,12 +91,10 @@
           </tbody>
         </table>
       </div>
-    </div>  
+      </div>  
 
-    <!-- モーダル -->
     <dialog id="statusModal">
-      <form method="dialog">
-        <h3>状態を更新</h3>
+      <form onsubmit="handleStatusUpdate(event)"> <h3>状態を更新</h3>
         <p><strong>受付番号：</strong><span id="modalId"></span></p>
         <select id="modalStatus" style="width:100%; padding:8px; margin:12px 0;">
           <option value="IN_PROGRESS">処理中</option>
