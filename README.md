@@ -82,5 +82,5 @@ Google Apps Script + スプレッドシートで構築した「在留管理シ�
 ## ✉️ 作者連絡先
 
 ポートフォリオ制作者：**Demo User（丘 智恵）**
-GitHub: [yourname](https://github.com/wisdom22323)
-E-mail: [your.email@example.com](mailto:wisdom22323@gmail.com)
+GitHub: [wisdom22323](https://github.com/wisdom22323)
+E-mail: [wisdom22323@gmail.com](mailto:wisdom22323@gmail.com)
