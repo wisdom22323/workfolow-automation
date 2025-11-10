@@ -73,7 +73,7 @@ Google Apps Script + スプレッドシートで構築した「在留管理シ�
 
 ## 🧾 注意事項
 
-* 本リポジトリのコードは **教育・ポートフォリオ用** です。
+* 本リポジトリのコードは **ポートフォリオ用** です。
 * 実運用時はデータ保護・認証設定を行ってください。
 * 無断転用・スプレッドシートIDの公開は禁止です。
 
@@ -82,5 +82,5 @@ Google Apps Script + スプレッドシートで構築した「在留管理シ�
 ## ✉️ 作者連絡先
 
 ポートフォリオ制作者：**Demo User（丘 智恵）**
-GitHub: [yourname](https://github.com/yourname)
-E-mail: [your.email@example.com](mailto:your.email@example.com)
+GitHub: [yourname](https://github.com/wisdom22323)
+E-mail: [your.email@example.com](mailto:wisdom22323@gmail.com)
